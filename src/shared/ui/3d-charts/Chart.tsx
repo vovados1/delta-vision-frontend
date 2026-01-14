@@ -1,39 +1,64 @@
 "use client"
 
-import { Line, OrbitControls } from "@react-three/drei"
+import { useMemo } from "react"
+import { OrbitControls } from "@react-three/drei"
 import { Canvas } from "@react-three/fiber"
 import { AxesGrid } from "./axes-grid"
+import { clamp } from "./utils"
+import type { Series } from "./types"
+import { DataSeries } from "./DataSeries"
 
-const data = [
-  { timestamp: 1736280000000, value: 42.7 },
-  { timestamp: 1735848000000, value: 91.2 },
-  { timestamp: 1736539200000, value: 33.5 },
-  { timestamp: 1736020800000, value: 67.8 },
-  { timestamp: 1736712000000, value: 12.4 },
-  { timestamp: 1735675200000, value: 88.1 },
-  { timestamp: 1736366400000, value: 55.9 },
-  { timestamp: 1735934400000, value: 29.3 },
-  { timestamp: 1736625600000, value: 76.4 },
-  { timestamp: 1736107200000, value: 44.6 },
-  { timestamp: 1735761600000, value: 63.2 },
-  { timestamp: 1736452800000, value: 19.7 },
-  { timestamp: 1736193600000, value: 18.3 },
-  { timestamp: 1735588800000, value: 82.5 },
-  { timestamp: 1736798400000, value: 51.8 },
-  { timestamp: 1735502400000, value: 37.1 },
-  { timestamp: 1736884800000, value: 94.6 },
-  { timestamp: 1735416000000, value: 71.3 },
-  { timestamp: 1736971200000, value: 25.9 },
-  { timestamp: 1735329600000, value: 58.4 },
-]
+interface ChartProps {
+  zAxisLabels: string[]
+  series: Series[]
+}
 
-export function Chart() {
-  const axisMax = 5
+export function Chart({ zAxisLabels, series }: ChartProps) {
+  const MIN_AXIS_POS = 5
+  const CAMERA_POS_MULTIPLIER = 1.5
+  const STEP = 1
+
+  const yAxisProps = useMemo(() => {
+    const yAxisValues = series.map((s) => s.values).flat()
+    // Potential optimization by removing duplicates
+    const reducedYAxisValues = [...new Set(yAxisValues)]
+    return reducedYAxisValues.reduce<{ min: number; max: number }>(
+      (acc, curr) => {
+        if (curr < acc.min) acc.min = curr
+        if (curr > acc.max) acc.max = curr
+        return acc
+      },
+      {
+        min: reducedYAxisValues[0],
+        max: reducedYAxisValues[0],
+      }
+    )
+  }, [series])
+
+  const axisMax = clamp(MIN_AXIS_POS, Infinity, zAxisLabels.length)
 
   return (
     <div className="h-dvh w-full">
-      <Canvas camera={{ position: [axisMax, axisMax, axisMax] }}>
-        <AxesGrid axisMax={axisMax} />
+      <Canvas
+        camera={{
+          position: [axisMax * CAMERA_POS_MULTIPLIER, axisMax * CAMERA_POS_MULTIPLIER, axisMax * CAMERA_POS_MULTIPLIER],
+        }}
+      >
+        <group>
+          <AxesGrid axisMax={axisMax} yMin={yAxisProps.min} yMax={yAxisProps.max} />
+          <group>
+            {series.map((s, i) => (
+              <DataSeries
+                key={s.label + i}
+                series={s}
+                yMin={yAxisProps.min}
+                yMax={yAxisProps.max}
+                startXPosition={STEP + i}
+                step={STEP}
+              />
+            ))}
+          </group>
+        </group>
         <OrbitControls />
       </Canvas>
     </div>
