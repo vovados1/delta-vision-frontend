@@ -1,42 +1,31 @@
 import { useMemo } from "react"
+import type { LineChartProps } from ".."
+import { useChartContext } from "../context"
 import { AxisLine } from "./AxisLine"
-import { TickMark } from "./TickMark"
+import { Y_AXIS_TICK_COUNT } from "../constants"
+import { MathUtils } from "three"
 
-interface AxesGridProps {
-  axisMax: number
-  yMin: number
-  yMax: number
-}
+type AxesGridProps = Pick<LineChartProps, "series" | "zAxisLabels" | "axesLabels">
 
-export function AxesGrid({ axisMax, yMin, yMax }: AxesGridProps) {
-  // Max amount of points that are going to be rendered on the Y axis from 0 to the top
-  const MAX_Y_POINTS = 15
+export function AxesGrid({ series, zAxisLabels, axesLabels }: AxesGridProps) {
+  const { yAxisBoundaries } = useChartContext()
 
-  // Should get it from above
-  const MIN_AXIS_POS = 5
+  // Ugly look for now
+  const yAxisProps = useMemo(() => {
+    const axisValues = series.map((s) => s.values).flat()
+    const deduplicatedAxisValues = [...new Set(axisValues)]
 
-  const yPoints = useMemo<number[]>(() => {
-    const nPerPoint = Math.floor(yMax / MAX_Y_POINTS)
+    const axisMax = MathUtils.clamp(0, Y_AXIS_TICK_COUNT, deduplicatedAxisValues.length)
+    const axisStep = (yAxisBoundaries.maxValue - yAxisBoundaries.minValue) / axisMax
 
-    return Array.from({ length: MAX_Y_POINTS }).map((_, i) => (yMin + i * nPerPoint) / MIN_AXIS_POS)
-  }, [yMin, yMax])
-
-  console.log(yPoints)
+    return { axisMax, axisStep }
+  }, [series, yAxisBoundaries])
 
   return (
     <group>
-      {/* Drawing axes */}
-      <AxisLine axis="x" label="Exchange" axisMax={axisMax} />
-      <AxisLine axis="y" label="Price" axisMax={axisMax} />
-      <AxisLine axis="z" label="Time" axisMax={axisMax} />
-
-      {/* Drawing ticks (axes legend) */}
-      {/* yAxis ticks */}
-      <group>
-        {yPoints.map((p, i) => (
-          <TickMark key={i} axis="y" label="Random" point={p} />
-        ))}
-      </group>
+      <AxisLine axis="x" label={axesLabels?.x} axisMax={series.length} />
+      <AxisLine axis="y" label={axesLabels?.y} axisMax={yAxisProps.axisMax} />
+      <AxisLine axis="z" label={axesLabels?.z} axisMax={zAxisLabels.length} />
     </group>
   )
 }

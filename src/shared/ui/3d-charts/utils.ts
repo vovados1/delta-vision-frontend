@@ -1,18 +1,25 @@
-/**
- * Constrains a value to be within a specified range (inclusive).
- *
- * @param min - The minimum allowed value (inclusive)
- * @param max - The maximum allowed value (inclusive)
- * @param curr - The value to constrain
- * @returns The constrained value within [min, max]
- *
- * @example
- * clamp(0, 100, 50)   // => 50
- * clamp(0, 100, -10)  // => 0
- * clamp(0, 100, 150)  // => 100
- */
-export const clamp = (min: number, max: number, curr: number) => {
-  if (curr < min) return min
-  else if (curr > max) return max
-  return curr
+import { Y_AXIS_TICK_COUNT, Z_AXIS_TICK_COUNT } from "./constants"
+import type { Series } from "./types"
+
+export const withBufferPoint = (pos: number, step: number) => pos + step
+
+export const getYAxisBoundaries = (series: Series[]) => {
+  const yAxisValues = series.map((s) => s.values).flat()
+  // Potential optimization by removing duplicates
+  const reducedYAxisValues = [...new Set(yAxisValues)]
+  return reducedYAxisValues.reduce<{ minValue: number; maxValue: number }>(
+    (acc, curr) => {
+      if (curr < acc.minValue) acc.minValue = curr
+      if (curr > acc.maxValue) acc.maxValue = curr
+      return acc
+    },
+    {
+      minValue: reducedYAxisValues[0],
+      maxValue: reducedYAxisValues[0],
+    }
+  )
 }
+
+export const getYPosForValue = (value: number, yMax: number, step: number) => (value / yMax) * Y_AXIS_TICK_COUNT * step
+
+export const limitZAxisLabels = (zAxisLabels: string[]) => zAxisLabels.toReversed().slice(0, Z_AXIS_TICK_COUNT - 1)

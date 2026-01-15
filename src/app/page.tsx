@@ -1,4 +1,4 @@
-import { Chart } from "~/shared/ui/3d-charts/Chart"
+import { LineChart } from "~/shared/ui/3d-charts"
 import type { Series } from "~/shared/ui/3d-charts/types"
 
 const zAxisLabels = [
@@ -32,5 +32,11 @@ const series: Series[] = [
 ]
 
 export default function Home() {
-  return <Chart zAxisLabels={zAxisLabels.map(String)} series={series} />
+  return (
+    <LineChart
+      series={series}
+      zAxisLabels={zAxisLabels.map(String)}
+      axesLabels={{ x: "Exchange", y: "Price", z: "Time" }}
+    />
+  )
 }
