@@ -1,14 +1,18 @@
 import { createContext, useContext } from "react"
-import type { getYAxisBoundaries } from "./utils"
+import type { getYAxisProps } from "./utils"
 
 export interface ContextState {
-  yAxisBoundaries: ReturnType<typeof getYAxisBoundaries>
-  step: number
+  yAxisProps: ReturnType<typeof getYAxisProps>
 }
 
 const initialState: ContextState = {
-  yAxisBoundaries: { minValue: 0, maxValue: 0 },
-  step: 0,
+  yAxisProps: {
+    axisMax: 0,
+    intervalValue: 0,
+    minValue: 0,
+    maxValue: 0,
+    convertValueIntoYPos: (value: number) => value,
+  },
 }
 
 export const ChartContext = createContext<ContextState>(initialState)
