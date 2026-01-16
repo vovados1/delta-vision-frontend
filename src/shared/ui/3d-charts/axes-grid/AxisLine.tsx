@@ -1,7 +1,7 @@
 import { MathUtils, type Vector3Tuple } from "three"
 import { Line, Text3D, type Text3DProps } from "@react-three/drei"
 import type { Axis } from "../types"
-import { AXIS_LABEL_BUFFER } from "../constants"
+import { AXIS_LABEL_BUFFER, X_AXIS_STEP } from "../constants"
 import RobotoTypeFace from "../resources/Roboto_SemiBold_Regular.json"
 import { TickMark } from "./TickMark"
 
@@ -55,7 +55,7 @@ export function AxisLine({ axis, axisMax, label, color = 0xffffff }: AxisLinePro
         </Text3D>
       )}
       {/* Rendering ticks */}
-      {Array.from({ length: axisMax }).map((_, i) => (
+      {Array.from({ length: axis === "x" ? axisMax / X_AXIS_STEP : axisMax }).map((_, i) => (
         <TickMark key={`${axis}-${i}`} axis={axis} axisValue={1 + i} />
       ))}
     </group>

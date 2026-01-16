@@ -2,6 +2,7 @@ import type { Vector3Tuple } from "three"
 import { Line } from "@react-three/drei"
 import type { Axis } from "../types"
 import { TICK_MARK_BUFFER } from "../constants"
+import { getXPos } from "../utils"
 
 const axesProps: Record<
   Axis,
@@ -13,8 +14,8 @@ const axesProps: Record<
   }
 > = {
   x: (axisValue: number) => ({
-    startPosition: [axisValue, 0, -TICK_MARK_BUFFER],
-    endPosition: [axisValue, 0, TICK_MARK_BUFFER],
+    startPosition: [getXPos(axisValue), 0, -TICK_MARK_BUFFER],
+    endPosition: [getXPos(axisValue), 0, TICK_MARK_BUFFER],
     labelPosition: [0, 0, 0],
     labelRotation: [0, 0, 0],
   }),
