@@ -20,7 +20,7 @@ export const getYAxisProps = (series: Series[]) => {
     }
   )
 
-  const yAxisMax = MathUtils.clamp(0, Y_AXIS_LIMIT, deduplicatedAxisValues.length)
+  const yAxisMax = MathUtils.clamp(deduplicatedAxisValues.length, 0, Y_AXIS_LIMIT)
   const yAxisIntervalValue = (maxValue - minValue) / (yAxisMax - 1)
 
   return {
