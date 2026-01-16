@@ -1,5 +1,5 @@
 import { MathUtils } from "three"
-import { BUFFER, Y_AXIS_LIMIT, Z_AXIS_LIMIT } from "./constants"
+import { BUFFER, X_AXIS_STEP, Y_AXIS_LIMIT, Z_AXIS_LIMIT } from "./constants"
 import type { Series } from "./types"
 
 export const withBufferPoint = (pos: number) => pos + BUFFER
@@ -33,3 +33,5 @@ export const getYAxisProps = (series: Series[]) => {
 }
 
 export const limitZAxisLabels = (zAxisLabels: string[]) => zAxisLabels.toReversed().slice(0, Z_AXIS_LIMIT - 1)
+
+export const getXPos = (x: number) => x * X_AXIS_STEP
