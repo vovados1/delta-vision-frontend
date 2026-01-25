@@ -1,5 +1,6 @@
 import { LineChart } from "~/shared/ui/3d-charts"
 import type { Series } from "~/shared/ui/3d-charts/types"
+import { Sidebar } from "~/shared/ui/sidebar"
 
 // epoch in ms
 const zAxisLabels = [
@@ -34,10 +35,13 @@ const series: Series[] = [
 
 export default function Home() {
   return (
-    <LineChart
-      series={series}
-      zAxisLabels={zAxisLabels.toSorted().map((epochTime) => new Date(epochTime).toLocaleString())}
-      axesLabels={{ x: "Exchange", y: "Price", z: "Time" }}
-    />
+    <>
+      <LineChart
+        series={series}
+        zAxisLabels={zAxisLabels.toSorted().map((epochTime) => new Date(epochTime).toLocaleString())}
+        axesLabels={{ x: "Exchange", y: "Price", z: "Time" }}
+      />
+      <Sidebar />
+    </>
   )
 }
