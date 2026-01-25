@@ -6,6 +6,7 @@ import { OrbitControls } from "@react-three/drei"
 import { Canvas } from "@react-three/fiber"
 import { AxesGrid } from "./axes-grid"
 import type { Axis, Series } from "./types"
+import { SeriesGroup } from "./series-group"
 import { withBufferPoint, getYAxisProps, limitZAxisLabels, getXPos } from "./utils"
 import { ChartContext, type ContextState } from "./context"
 
@@ -44,7 +45,10 @@ export function LineChart({ zAxisLabels, series, axesLabels }: LineChartProps) {
     <div className="h-dvh w-full">
       <ChartContext.Provider value={contextValue}>
         <Canvas camera={{ position: cameraPosition }}>
+          {/* Render grid / labels / ticks */}
           <AxesGrid series={series} zAxisLabels={zAxisLabels} axesLabels={axesLabels} />
+          {/* Render data */}
+          <SeriesGroup series={series} />
           <OrbitControls />
         </Canvas>
       </ChartContext.Provider>
