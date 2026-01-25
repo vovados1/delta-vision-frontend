@@ -7,7 +7,7 @@ import { SIG_FIGURES_COUNT } from "../constants"
 type AxesGridProps = Pick<LineChartProps, "series" | "zAxisLabels" | "axesLabels">
 
 export function AxesGrid({ series, zAxisLabels, axesLabels }: AxesGridProps) {
-  const { yAxisProps } = useChartContext()
+  const { yAxisProps, gridColor } = useChartContext()
 
   const yAxisTicks = useMemo(
     () =>
@@ -19,9 +19,9 @@ export function AxesGrid({ series, zAxisLabels, axesLabels }: AxesGridProps) {
 
   return (
     <group>
-      <AxisLine axis="x" label={axesLabels?.x} ticks={series.map((s) => s.label)} />
-      <AxisLine axis="y" label={axesLabels?.y} ticks={yAxisTicks} />
-      <AxisLine axis="z" label={axesLabels?.z} ticks={zAxisLabels} />
+      <AxisLine axis="x" label={axesLabels?.x} ticks={series.map((s) => s.label)} color={gridColor} />
+      <AxisLine axis="y" label={axesLabels?.y} ticks={yAxisTicks} color={gridColor} />
+      <AxisLine axis="z" label={axesLabels?.z} ticks={zAxisLabels} color={gridColor} />
     </group>
   )
 }

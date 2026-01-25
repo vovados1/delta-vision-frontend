@@ -1,6 +1,10 @@
+"use client"
+
+import { useState } from "react"
 import { LineChart } from "~/shared/ui/3d-charts"
 import type { Series } from "~/shared/ui/3d-charts/types"
-import { Sidebar } from "~/shared/ui/sidebar"
+import { Sidebar } from "./_components/sidebar"
+import type { Config } from "./types"
 
 // epoch in ms
 const zAxisLabels = [
@@ -34,14 +38,29 @@ const series: Series[] = [
 ]
 
 export default function Home() {
+  const [config, setConfig] = useState<Config>({
+    exchanges: [],
+    pairs: [],
+    strategies: [],
+    period: "1m",
+    refreshRate: "live",
+    nodeColor: "#22c55e",
+    lineColor: "#16a34a",
+    gridColor: "#ffffff",
+    state: "off",
+  })
+
   return (
     <>
       <LineChart
         series={series}
         zAxisLabels={zAxisLabels.toSorted().map((epochTime) => new Date(epochTime).toLocaleString())}
         axesLabels={{ x: "Exchange", y: "Price", z: "Time" }}
+        nodeColor={config.nodeColor}
+        lineColor={config.lineColor}
+        gridColor={config.gridColor}
       />
-      <Sidebar />
+      <Sidebar config={config} onUpdate={(changes) => setConfig((prev) => ({ ...prev, ...changes }))} />
     </>
   )
 }

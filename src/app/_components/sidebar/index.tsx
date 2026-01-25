@@ -1,8 +1,8 @@
 "use client"
 
-import clsx from "clsx"
-import { LucidePanelLeft, LucidePanelLeftClose } from "lucide-react"
+import { clsx } from "clsx"
 import { useState } from "react"
+import { LucidePanelLeft, LucidePanelLeftClose } from "lucide-react"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "~/shared/ui/accordion"
 import { Button } from "~/shared/ui/button"
 import {
@@ -20,8 +20,14 @@ import { Field, FieldLabel } from "~/shared/ui/field"
 import { Input } from "~/shared/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/shared/ui/select"
 import { H3 } from "~/shared/ui/typography"
+import type { Config, Exchange, Pair, Period, RefreshRate, Strategy } from "~/app/types"
 
-export function Sidebar() {
+interface SidebarProps {
+  config: Config
+  onUpdate: (updates: Partial<Config>) => void
+}
+
+export function Sidebar({ config, onUpdate }: SidebarProps) {
   const [isOpen, setIsOpen] = useState(false)
 
   return (
@@ -51,7 +57,14 @@ export function Sidebar() {
               <AccordionContent className="grid gap-4">
                 <Field>
                   <FieldLabel htmlFor="exchanges">Exchanges</FieldLabel>
-                  <Combobox id="exchanges" multiple autoHighlight items={["binance", "okx", "bybit"]}>
+                  <Combobox
+                    id="exchanges"
+                    multiple
+                    autoHighlight
+                    value={config.exchanges}
+                    items={["binance", "bybit", "okx", "kraken", "coinbase"] satisfies Exchange[]}
+                    onValueChange={(values) => onUpdate({ exchanges: values as Exchange[] })}
+                  >
                     <ComboboxChips>
                       <ComboboxValue>
                         {(values) => values.map((value: string) => <ComboboxChip key={value}>{value}</ComboboxChip>)}
@@ -73,7 +86,14 @@ export function Sidebar() {
 
                 <Field>
                   <FieldLabel htmlFor="pairs">Pairs</FieldLabel>
-                  <Combobox id="pairs" multiple autoHighlight items={["usdt/btc", "usdt/ltc"]}>
+                  <Combobox
+                    id="pairs"
+                    multiple
+                    autoHighlight
+                    value={config.pairs}
+                    items={["usdt/btc", "usdt/ltc"] satisfies Pair[]}
+                    onValueChange={(values) => onUpdate({ pairs: values as Pair[] })}
+                  >
                     <ComboboxChips>
                       <ComboboxValue>
                         {(values) => values.map((value: string) => <ComboboxChip key={value}>{value}</ComboboxChip>)}
@@ -95,7 +115,14 @@ export function Sidebar() {
 
                 <Field>
                   <FieldLabel htmlFor="strategies">Arbitrage Strategies</FieldLabel>
-                  <Combobox id="strategies" multiple autoHighlight items={["triangular", "cross-exchange"]}>
+                  <Combobox
+                    id="strategies"
+                    multiple
+                    autoHighlight
+                    value={config.strategies}
+                    items={["triangular", "cross-exchange"] satisfies Strategy[]}
+                    onValueChange={(values) => onUpdate({ strategies: values as Strategy[] })}
+                  >
                     <ComboboxChips>
                       <ComboboxValue>
                         {(values) => values.map((value: string) => <ComboboxChip key={value}>{value}</ComboboxChip>)}
@@ -122,7 +149,7 @@ export function Sidebar() {
               <AccordionContent className="grid gap-4">
                 <Field>
                   <FieldLabel htmlFor="period">Period</FieldLabel>
-                  <Select>
+                  <Select value={config.period} onValueChange={(value) => onUpdate({ period: value as Period })}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -135,7 +162,10 @@ export function Sidebar() {
                 </Field>
                 <Field>
                   <FieldLabel htmlFor="refresh-rate">Refresh rate</FieldLabel>
-                  <Select>
+                  <Select
+                    value={config.refreshRate}
+                    onValueChange={(value) => onUpdate({ refreshRate: value as RefreshRate })}
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -156,21 +186,41 @@ export function Sidebar() {
               <AccordionContent className="grid gap-4">
                 <Field>
                   <FieldLabel htmlFor="node-color">Node color</FieldLabel>
-                  <Input id="node-color" value="0xffffff" />
+                  <Input
+                    id="node-color"
+                    value={config.nodeColor}
+                    onChange={(e) => onUpdate({ nodeColor: e.target.value })}
+                  />
                 </Field>
                 <Field>
                   <FieldLabel htmlFor="line-color">Line color</FieldLabel>
-                  <Input id="line-color" value="0xffffff" />
+                  <Input
+                    id="line-color"
+                    value={config.lineColor}
+                    onChange={(e) => onUpdate({ lineColor: e.target.value })}
+                  />
                 </Field>
                 <Field>
                   <FieldLabel htmlFor="grid-color">Grid color</FieldLabel>
-                  <Input id="grid-color" value="0xffffff" />
+                  <Input
+                    id="grid-color"
+                    value={config.gridColor}
+                    onChange={(e) => onUpdate({ gridColor: e.target.value })}
+                  />
                 </Field>
               </AccordionContent>
             </AccordionItem>
           </Accordion>
         </div>
-        <Button className="mt-auto w-full">Start</Button>
+        <div className="mt-auto border-t pt-3">
+          <Button
+            className="w-full"
+            variant={config.state === "off" ? "default" : "destructive"}
+            onClick={() => onUpdate({ state: config.state === "off" ? "on" : "off" })}
+          >
+            {config.state === "off" ? "Start" : "Stop"}
+          </Button>
+        </div>
       </aside>
     </>
   )

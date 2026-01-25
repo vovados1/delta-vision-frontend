@@ -1,13 +1,14 @@
 import type { Vector3Tuple } from "three"
+import { DEFAULT_NODE_COLOR } from "../constants"
 
-interface DataPointProps {
+interface NodeProps {
   label: string
   value: number
   position: Vector3Tuple
   color?: number | string
 }
 
-export function DataPoint({ label, value, position, color = 0x22c55e }: DataPointProps) {
+export function Node({ label, value, position, color = DEFAULT_NODE_COLOR }: NodeProps) {
   return (
     <group position={position}>
       <mesh>

@@ -9,6 +9,7 @@ import type { Axis, Series } from "./types"
 import { SeriesGroup } from "./series-group"
 import { withBufferPoint, getYAxisProps, limitZAxisLabels, getXPos } from "./utils"
 import { ChartContext, type ContextState } from "./context"
+import { DEFAULT_GRID_COLOR, DEFAULT_LINE_COLOR, DEFAULT_NODE_COLOR } from "./constants"
 
 export interface LineChartProps {
   // For example: Date
@@ -17,9 +18,20 @@ export interface LineChartProps {
   series: Series[]
   // Text Labels for different axes
   axesLabels?: Partial<Record<Axis, string>>
+  // Colors
+  nodeColor?: number | string
+  lineColor?: number | string
+  gridColor?: number | string
 }
 
-export function LineChart({ zAxisLabels, series, axesLabels }: LineChartProps) {
+export function LineChart({
+  zAxisLabels,
+  series,
+  axesLabels,
+  nodeColor = DEFAULT_NODE_COLOR,
+  lineColor = DEFAULT_LINE_COLOR,
+  gridColor = DEFAULT_GRID_COLOR,
+}: LineChartProps) {
   const yAxisProps = useMemo(() => getYAxisProps(series), [series])
   // Limiting z axis labels (will return last $Z_AXIS_TICK_COUNT number of items)
   const limitedZAxisLabels = useMemo(() => limitZAxisLabels(zAxisLabels), [zAxisLabels])
@@ -37,8 +49,11 @@ export function LineChart({ zAxisLabels, series, axesLabels }: LineChartProps) {
     () =>
       ({
         yAxisProps,
+        nodeColor,
+        lineColor,
+        gridColor,
       }) satisfies ContextState,
-    [yAxisProps]
+    [yAxisProps, nodeColor, lineColor, gridColor]
   )
 
   return (

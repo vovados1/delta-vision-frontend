@@ -1,7 +1,7 @@
 import type { Vector3Tuple } from "three"
 import type { Series } from "../types"
-import { DataPoint } from "./DataPoint"
-import { DataLine } from "./DataLine"
+import { Node } from "./Node"
+import { Line } from "./Line"
 import { X_AXIS_STEP } from "../constants"
 import { useChartContext } from "../context"
 
@@ -11,7 +11,7 @@ interface SeriesTraceProps {
 }
 
 export function SeriesTrace({ seriesItem, index }: SeriesTraceProps) {
-  const { yAxisProps } = useChartContext()
+  const { yAxisProps, nodeColor, lineColor } = useChartContext()
 
   const X_POSITION = X_AXIS_STEP * (index + 1)
   const position: Vector3Tuple = [X_POSITION, 0, 0]
@@ -20,11 +20,12 @@ export function SeriesTrace({ seriesItem, index }: SeriesTraceProps) {
     <group position={position}>
       {/* Rendering datapoints (nodes) */}
       {seriesItem.values.map((value, valueIndex) => (
-        <DataPoint
+        <Node
           key={`datapoint-${seriesItem.label}-${value}-${valueIndex}`}
           label={seriesItem.label}
           value={value}
           position={[0, yAxisProps.convertValueIntoYPos(value), valueIndex + 1]}
+          color={nodeColor}
         />
       ))}
 
@@ -33,10 +34,11 @@ export function SeriesTrace({ seriesItem, index }: SeriesTraceProps) {
         seriesItem.values
           .slice(0, -1)
           .map((value, valueIndex) => (
-            <DataLine
+            <Line
               key={`line-${seriesItem.label}-${value}-${valueIndex}`}
               from={[0, yAxisProps.convertValueIntoYPos(value), valueIndex + 1]}
               to={[0, yAxisProps.convertValueIntoYPos(seriesItem.values[valueIndex + 1]), valueIndex + 2]}
+              color={lineColor}
             />
           ))}
     </group>

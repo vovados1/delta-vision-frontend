@@ -60,7 +60,7 @@ export function AxisLine({ axis, ticks, label, color = 0xffffff }: AxisLineProps
       )}
       {/* Rendering ticks */}
       {ticks.map((value, i) => (
-        <TickMark key={`${axis}-${value}`} axis={axis} axisValue={i + 1} label={value} />
+        <TickMark key={`${axis}-${value}`} axis={axis} axisValue={i + 1} label={value} color={color} />
       ))}
     </group>
   )
