@@ -47,7 +47,7 @@ export function LineChart({ zAxisLabels, series, axesLabels }: LineChartProps) {
         <Canvas camera={{ position: cameraPosition }}>
           {/* Render grid / labels / ticks */}
           <AxesGrid series={series} zAxisLabels={zAxisLabels} axesLabels={axesLabels} />
-          {/* Render data */}
+          {/* Render data (nodes / connecting lines) */}
           <SeriesGroup series={series} />
           <OrbitControls />
         </Canvas>
