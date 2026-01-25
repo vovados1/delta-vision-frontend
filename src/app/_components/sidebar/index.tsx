@@ -2,7 +2,7 @@
 
 import { clsx } from "clsx"
 import { useState } from "react"
-import { LucidePanelLeft, LucidePanelLeftClose } from "lucide-react"
+import { LucideClock, LucidePanelLeft, LucidePanelLeftClose, LucideTimer } from "lucide-react"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "~/shared/ui/accordion"
 import { Button } from "~/shared/ui/button"
 import {
@@ -20,6 +20,7 @@ import { Field, FieldLabel } from "~/shared/ui/field"
 import { Input } from "~/shared/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/shared/ui/select"
 import { H3 } from "~/shared/ui/typography"
+import { ColorPicker } from "~/shared/ui/color-picker"
 import type { Config, Exchange, Pair, Period, RefreshRate, Strategy } from "~/app/types"
 
 interface SidebarProps {
@@ -50,7 +51,7 @@ export function Sidebar({ config, onUpdate }: SidebarProps) {
           <LucidePanelLeftClose />
         </Button>
         <H3>Configuration</H3>
-        <div>
+        <div className="flex-1">
           <Accordion type="multiple" defaultValue={["main", "time"]}>
             <AccordionItem value="main">
               <AccordionTrigger>Main</AccordionTrigger>
@@ -151,6 +152,7 @@ export function Sidebar({ config, onUpdate }: SidebarProps) {
                   <FieldLabel htmlFor="period">Period</FieldLabel>
                   <Select value={config.period} onValueChange={(value) => onUpdate({ period: value as Period })}>
                     <SelectTrigger>
+                      <LucideClock />
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -167,6 +169,7 @@ export function Sidebar({ config, onUpdate }: SidebarProps) {
                     onValueChange={(value) => onUpdate({ refreshRate: value as RefreshRate })}
                   >
                     <SelectTrigger>
+                      <LucideTimer />
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -186,33 +189,57 @@ export function Sidebar({ config, onUpdate }: SidebarProps) {
               <AccordionContent className="grid gap-4">
                 <Field>
                   <FieldLabel htmlFor="node-color">Node color</FieldLabel>
-                  <Input
-                    id="node-color"
-                    value={config.nodeColor}
-                    onChange={(e) => onUpdate({ nodeColor: e.target.value })}
-                  />
+                  <div className="relative z-100">
+                    <ColorPicker
+                      containerClassName="absolute top-1/2 -translate-y-1/2 left-2"
+                      color={config.nodeColor}
+                      onChange={(color) => onUpdate({ nodeColor: color })}
+                    />
+                    <Input
+                      className="pl-10"
+                      id="node-color"
+                      value={config.nodeColor}
+                      onChange={(e) => onUpdate({ nodeColor: e.target.value })}
+                    />
+                  </div>
                 </Field>
                 <Field>
                   <FieldLabel htmlFor="line-color">Line color</FieldLabel>
-                  <Input
-                    id="line-color"
-                    value={config.lineColor}
-                    onChange={(e) => onUpdate({ lineColor: e.target.value })}
-                  />
+                  <div className="relative z-50">
+                    <ColorPicker
+                      containerClassName="absolute top-1/2 -translate-y-1/2 left-2"
+                      color={config.lineColor}
+                      onChange={(color) => onUpdate({ lineColor: color })}
+                    />
+                    <Input
+                      className="pl-10"
+                      id="line-color"
+                      value={config.lineColor}
+                      onChange={(e) => onUpdate({ lineColor: e.target.value })}
+                    />
+                  </div>
                 </Field>
                 <Field>
                   <FieldLabel htmlFor="grid-color">Grid color</FieldLabel>
-                  <Input
-                    id="grid-color"
-                    value={config.gridColor}
-                    onChange={(e) => onUpdate({ gridColor: e.target.value })}
-                  />
+                  <div className="relative z-10">
+                    <ColorPicker
+                      containerClassName="absolute top-1/2 -translate-y-1/2 left-2"
+                      color={config.gridColor}
+                      onChange={(color) => onUpdate({ gridColor: color })}
+                    />
+                    <Input
+                      className="pl-10"
+                      id="grid-color"
+                      value={config.gridColor}
+                      onChange={(e) => onUpdate({ gridColor: e.target.value })}
+                    />
+                  </div>
                 </Field>
               </AccordionContent>
             </AccordionItem>
           </Accordion>
         </div>
-        <div className="mt-auto border-t pt-3">
+        <div className="border-t pt-3">
           <Button
             className="w-full"
             variant={config.state === "off" ? "default" : "destructive"}
