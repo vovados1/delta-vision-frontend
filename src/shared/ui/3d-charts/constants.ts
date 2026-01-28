@@ -8,7 +8,7 @@ export const TICK_MARK_BUFFER = 0.25
 
 export const X_AXIS_STEP = 3
 
-export const SIG_FIGURES_COUNT = 2
+export const SIG_FIGURES_COUNT = 10
 
 // colors
 export const DEFAULT_NODE_COLOR = 0x22c55e

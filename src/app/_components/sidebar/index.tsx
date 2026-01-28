@@ -92,7 +92,7 @@ export function Sidebar({ config, onUpdate }: SidebarProps) {
                     multiple
                     autoHighlight
                     value={config.pairs}
-                    items={["usdt/btc", "usdt/ltc"] satisfies Pair[]}
+                    items={["btc/usdt", "ltc/usdt"] satisfies Pair[]}
                     onValueChange={(values) => onUpdate({ pairs: values as Pair[] })}
                   >
                     <ComboboxChips>
