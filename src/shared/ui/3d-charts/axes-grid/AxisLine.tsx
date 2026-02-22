@@ -18,7 +18,7 @@ const axesProps: Record<
   x: (axisMax: number) => ({
     startPosition: [0, 0, 0],
     endPosition: [getXPos(axisMax), 0, 0],
-    labelPosition: [getXPos(axisMax) - 8, 0, -AXIS_LABEL_BUFFER],
+    labelPosition: [MathUtils.clamp(getXPos(axisMax) - 8, 1.5, Infinity), 0, -AXIS_LABEL_BUFFER],
     labelRotation: [MathUtils.degToRad(-90), 0, 0],
   }),
   y: (axisMax: number) => ({

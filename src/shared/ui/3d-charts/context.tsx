@@ -11,10 +11,7 @@ export interface ContextState {
 
 const initialState: ContextState = {
   yAxisProps: {
-    axisMax: 0,
-    intervalValue: 0,
-    minValue: 0,
-    maxValue: 0,
+    ticks: [],
     convertValueIntoYPos: (value: number) => value,
   },
   nodeColor: DEFAULT_NODE_COLOR,
