@@ -40,10 +40,12 @@ export function LineChart({
     // X -> series.length + $BUFFER
     withBufferPoint(getXPos(series.length)),
     // Y -> latest serie latest value + $BUFFER (so it's a bit higher by $BUFFER)
-    withBufferPoint(yAxisProps.convertValueIntoYPos(series.at(-1)?.values.at(-1) || 0)),
+    withBufferPoint(yAxisProps.convertValueIntoYPos(series.at(-1)?.values.at(-1) || 0) || 0),
     // Z -> limitedZAxisLabels.length + $BUFFER (basically latest time + $BUFFER)
     withBufferPoint(limitedZAxisLabels.length),
   ]
+
+  console.log(cameraPosition)
 
   const contextValue = useMemo(
     () =>

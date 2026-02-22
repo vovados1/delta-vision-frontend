@@ -1,8 +1,8 @@
 "use client"
 
 import { clsx } from "clsx"
-import { useState } from "react"
-import { LucideClock, LucidePanelLeft, LucidePanelLeftClose, LucideTimer } from "lucide-react"
+import { useEffect, useState } from "react"
+import { LucidePanelLeft, LucidePanelLeftClose, LucideTimer } from "lucide-react"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "~/shared/ui/accordion"
 import { Button } from "~/shared/ui/button"
 import {
@@ -21,7 +21,7 @@ import { Input } from "~/shared/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/shared/ui/select"
 import { H3 } from "~/shared/ui/typography"
 import { ColorPicker } from "~/shared/ui/color-picker"
-import type { Config, Exchange, Pair, Period, RefreshRate, Strategy } from "~/app/types"
+import type { Config, MetadataResponse, RefreshRate, Strategy } from "~/app/types"
 
 interface SidebarProps {
   config: Config
@@ -30,6 +30,28 @@ interface SidebarProps {
 
 export function Sidebar({ config, onUpdate }: SidebarProps) {
   const [isOpen, setIsOpen] = useState(false)
+  const [exchanges, setExchanges] = useState<string[]>([])
+  const [pairs, setPairs] = useState<string[]>([])
+
+  useEffect(() => {
+    if (!isOpen || !!exchanges.length || !!pairs.length) return
+
+    const fetchMetadata = async () => {
+      try {
+        const request = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/data/meta`, {
+          cache: "no-cache",
+        })
+        const metadata = (await request.json()) as Awaited<MetadataResponse>
+
+        setExchanges(metadata.exchanges)
+        setPairs(metadata.pairs)
+      } catch (e) {
+        console.error(e)
+      }
+    }
+
+    fetchMetadata()
+  }, [isOpen, exchanges.length, pairs.length])
 
   return (
     <>
@@ -63,8 +85,8 @@ export function Sidebar({ config, onUpdate }: SidebarProps) {
                     multiple
                     autoHighlight
                     value={config.exchanges}
-                    items={["binance", "bybit", "okx", "kraken", "coinbase"] satisfies Exchange[]}
-                    onValueChange={(values) => onUpdate({ exchanges: values as Exchange[] })}
+                    items={exchanges}
+                    onValueChange={(values) => onUpdate({ exchanges: values })}
                   >
                     <ComboboxChips>
                       <ComboboxValue>
@@ -92,8 +114,8 @@ export function Sidebar({ config, onUpdate }: SidebarProps) {
                     multiple
                     autoHighlight
                     value={config.pairs}
-                    items={["btc/usdt", "ltc/usdt"] satisfies Pair[]}
-                    onValueChange={(values) => onUpdate({ pairs: values as Pair[] })}
+                    items={pairs}
+                    onValueChange={(values) => onUpdate({ pairs: values })}
                   >
                     <ComboboxChips>
                       <ComboboxValue>
@@ -148,20 +170,6 @@ export function Sidebar({ config, onUpdate }: SidebarProps) {
             <AccordionItem value="time">
               <AccordionTrigger>Time</AccordionTrigger>
               <AccordionContent className="grid gap-4">
-                <Field>
-                  <FieldLabel htmlFor="period">Period</FieldLabel>
-                  <Select value={config.period} onValueChange={(value) => onUpdate({ period: value as Period })}>
-                    <SelectTrigger>
-                      <LucideClock />
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="1m">last 1 minute</SelectItem>
-                      <SelectItem value="5m">last 5 minutes</SelectItem>
-                      <SelectItem value="10m">last 10 minutes</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </Field>
                 <Field>
                   <FieldLabel htmlFor="refresh-rate">Refresh rate</FieldLabel>
                   <Select

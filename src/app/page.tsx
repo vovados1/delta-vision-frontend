@@ -4,93 +4,107 @@ import { useEffect, useRef, useState } from "react"
 import { LineChart } from "~/shared/ui/3d-charts"
 import type { Series } from "~/shared/ui/3d-charts/types"
 import { Sidebar } from "./_components/sidebar"
-import type { Config, DataResponse, DataResponseValue } from "./types"
-
-// epoch in ms
-const zAxisLabels = []
-
-const series: Series[] = [
-  {
-    label: "Binance",
-    values: [],
-  },
-  {
-    label: "ByBit",
-    values: [],
-  },
-  // {
-  //   label: "OKX",
-  //   values: [400, 350, 600],
-  // },
-]
+import { useLatest } from "~/shared/lib/hooks"
+import type { Config, DataResponse } from "./types"
+import { limitArr } from "~/shared/lib/utils"
+import { Z_AXIS_TICKS_LIMIT } from "~/shared/ui/3d-charts/constants"
 
 export default function Home() {
   const [config, setConfig] = useState<Config>({
     exchanges: [],
     pairs: [],
     strategies: [],
-    period: "1m",
-    refreshRate: "live",
+    refreshRate: "1s",
     nodeColor: "#22c55e",
     lineColor: "#16a34a",
     gridColor: "#ffffff",
     state: "off",
   })
-  // const [series, setSeries] = useState<Series[]>([])
-  // const [zAxisLabels, setZAxisLabels] = useState<number[]>([])
-  // const subscribedRef = useRef<string[]>([])
-  // const wsRef = useRef(new WebSocket(`ws://localhost:7000/data`))
+  const [series, setSeries] = useState<Series[]>([])
+  const [zAxisLabels, setZAxisLabels] = useState<string[]>([])
+  const wsRef = useRef<WebSocket | null>(null)
+  const configRef = useLatest(config)
+  const isRunningRef = useRef(false)
 
-  // console.log(series, zAxisLabels)
+  useEffect(() => {
+    const ws = new WebSocket(`${process.env.NEXT_PUBLIC_WS_URL}/data/stream`)
+    wsRef.current = ws
 
-  // useEffect(() => {
-  //   const ws = wsRef.current
-  //   if (!ws) return
+    ws.onmessage = (_msg) => {
+      try {
+        const message = JSON.parse(_msg.data) as DataResponse
+        if (!message.key || !message.data) throw new Error("Unexpected response format")
 
-  //   ws.onmessage = (_msg) => {
-  //     const message = JSON.parse(_msg.data) as DataResponse
-  //     const value = JSON.parse(message.value) as DataResponseValue
+        setSeries((prev) => {
+          const serieExists = prev.find((p) => p.label === message.key)
 
-  //     // Guard against invalid values that would cause NaN in geometry
-  //     if (!Number.isFinite(value.ask) || !Number.isFinite(value.timestamp)) {
-  //       console.warn("Received invalid data:", value)
-  //       return
-  //     }
+          return serieExists
+            ? prev.map((p) =>
+                p.label === message.key
+                  ? { ...p, values: limitArr([...p.values, message.data.ask], Z_AXIS_TICKS_LIMIT) }
+                  : p
+              )
+            : [...prev, { label: message.key, values: [message.data.ask] }]
+        })
 
-  //     setSeries((prev) => {
-  //       const serieExists = prev.find((p) => p.label === message.key)
+        setZAxisLabels((prev) => {
+          const newZAxisLabels = [...new Set([...prev, message.data.timestamp])]
+            .toSorted()
+            .map((epochTime) => new Date(epochTime).toLocaleString())
 
-  //       return serieExists
-  //         ? prev.map((p) => (p.label === message.key ? { label: p.label, values: [...p.values, value.ask] } : p))
-  //         : [...prev, { label: message.key, values: [value.ask] }]
-  //     })
+          return limitArr(newZAxisLabels, Z_AXIS_TICKS_LIMIT)
+        })
+      } catch (e) {
+        console.error(e)
+      }
+    }
 
-  //     setZAxisLabels((prev) => [...prev, value.timestamp + Math.random()])
-  //   }
+    return () => {
+      ws.close()
+      wsRef.current = null
+      isRunningRef.current = false
+    }
+  }, [])
 
-  //   return ws.close
-  // }, [])
+  useEffect(() => {
+    try {
+      const ws = wsRef.current
+      const cfg = configRef.current
+      if (!ws || !(ws.readyState === ws.OPEN) || !cfg) return
 
-  // useEffect(() => {
-  //   const ws = wsRef.current
-  //   const subscribed = subscribedRef.current
-  //   if (!ws || !subscribed) return
-
-  //   config.exchanges.forEach((exchange) =>
-  //     config.pairs.forEach((pair) => {
-  //       const key = `${exchange}_${pair}`
-  //       if (subscribed.includes(key)) return
-  //       ws.send(JSON.stringify({ action: "subscribe", key }))
-  //     })
-  //   )
-  // }, [config.exchanges, config.pairs])
+      switch (config.state) {
+        case "on":
+          if (isRunningRef.current) return
+          ws.send(
+            JSON.stringify({
+              type: "join_pool",
+              exchanges: cfg.exchanges,
+              pairs: cfg.pairs,
+              refreshRate: cfg.refreshRate,
+            })
+          )
+          isRunningRef.current = true
+          break
+        case "off":
+          if (!isRunningRef.current) return
+          ws.send(JSON.stringify({ type: "leave_pool" }))
+          isRunningRef.current = false
+          break
+        default:
+          throw new Error("Unknown config.state value")
+      }
+    } catch (e) {
+      console.error(e)
+    }
+    // Disable exhaustive deps rule because eslint doesn't understand `useLatest` returns a RefObject
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [config.state])
 
   return (
     <>
       <LineChart
         series={series}
-        zAxisLabels={zAxisLabels.map((z) => z.toString())}
-        // zAxisLabels={zAxisLabels.toSorted().map((epochTime) => new Date(epochTime).toLocaleString())}
+        zAxisLabels={zAxisLabels}
         axesLabels={{ x: "Exchange", y: "Price", z: "Time" }}
         nodeColor={config.nodeColor}
         lineColor={config.lineColor}
