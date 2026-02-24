@@ -7,7 +7,12 @@ import { Sidebar } from "./_components/sidebar"
 import { useLatest } from "~/shared/lib/hooks"
 import type { Config, DataResponse } from "./types"
 import { limitArr } from "~/shared/lib/utils"
-import { Z_AXIS_TICKS_LIMIT } from "~/shared/ui/3d-charts/constants"
+import {
+  DEFAULT_GRID_COLOR,
+  DEFAULT_LINE_COLOR,
+  DEFAULT_NODE_COLOR,
+  Z_AXIS_TICKS_LIMIT,
+} from "~/shared/ui/3d-charts/constants"
 
 export default function Home() {
   const [config, setConfig] = useState<Config>({
@@ -15,9 +20,9 @@ export default function Home() {
     pairs: [],
     strategies: [],
     refreshRate: "1s",
-    nodeColor: "#22c55e",
-    lineColor: "#16a34a",
-    gridColor: "#ffffff",
+    nodeColor: `#${DEFAULT_NODE_COLOR.toString(16)}`,
+    lineColor: `#${DEFAULT_LINE_COLOR.toString(16)}`,
+    gridColor: `#${DEFAULT_GRID_COLOR.toString(16)}`,
     state: "off",
   })
   const [series, setSeries] = useState<Series[]>([])

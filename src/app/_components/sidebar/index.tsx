@@ -21,6 +21,7 @@ import { Input } from "~/shared/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/shared/ui/select"
 import { H3 } from "~/shared/ui/typography"
 import { ColorPicker } from "~/shared/ui/color-picker"
+import { ModeToggle } from "~/shared/ui/theme-provider/mode-toggle"
 import type { Config, MetadataResponse, RefreshRate, Strategy } from "~/app/types"
 
 interface SidebarProps {
@@ -69,9 +70,12 @@ export function Sidebar({ config, onUpdate }: SidebarProps) {
           isOpen && "translate-none"
         )}
       >
-        <Button className="mb-4" variant="outline" size="icon-sm" onClick={() => setIsOpen(false)}>
-          <LucidePanelLeftClose />
-        </Button>
+        <header className="mb-4 flex items-center justify-between gap-4">
+          <Button variant="outline" size="icon-sm" onClick={() => setIsOpen(false)}>
+            <LucidePanelLeftClose />
+          </Button>
+          <ModeToggle />
+        </header>
         <H3>Configuration</H3>
         <div className="flex-1">
           <Accordion type="multiple" defaultValue={["main", "time"]}>
@@ -84,6 +88,7 @@ export function Sidebar({ config, onUpdate }: SidebarProps) {
                     id="exchanges"
                     multiple
                     autoHighlight
+                    disabled={config.state === "on"}
                     value={config.exchanges}
                     items={exchanges}
                     onValueChange={(values) => onUpdate({ exchanges: values })}
@@ -113,6 +118,7 @@ export function Sidebar({ config, onUpdate }: SidebarProps) {
                     id="pairs"
                     multiple
                     autoHighlight
+                    disabled={config.state === "on"}
                     value={config.pairs}
                     items={pairs}
                     onValueChange={(values) => onUpdate({ pairs: values })}
@@ -142,6 +148,7 @@ export function Sidebar({ config, onUpdate }: SidebarProps) {
                     id="strategies"
                     multiple
                     autoHighlight
+                    disabled={config.state === "on"}
                     value={config.strategies}
                     items={["triangular", "cross-exchange"] satisfies Strategy[]}
                     onValueChange={(values) => onUpdate({ strategies: values as Strategy[] })}
@@ -173,6 +180,7 @@ export function Sidebar({ config, onUpdate }: SidebarProps) {
                 <Field>
                   <FieldLabel htmlFor="refresh-rate">Refresh rate</FieldLabel>
                   <Select
+                    disabled={config.state === "on"}
                     value={config.refreshRate}
                     onValueChange={(value) => onUpdate({ refreshRate: value as RefreshRate })}
                   >
