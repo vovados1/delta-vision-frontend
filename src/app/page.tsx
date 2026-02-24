@@ -100,6 +100,23 @@ export default function Home() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [config.state])
 
+  const handleSidebarUpdate = (changes: Partial<Config>) => {
+    setConfig((prev) => ({ ...prev, ...changes }))
+
+    // Make sure exchanges / pairs are repainted on change
+    const nextConfig = { ...config, ...changes }
+    const nextExchanges = nextConfig.exchanges || config.exchanges
+    const nextPairs = nextConfig.pairs || config.pairs
+
+    setSeries((prev) => {
+      const labels = nextExchanges.flatMap((exchange) => nextPairs.map((pair) => `${exchange}_${pair}`))
+      return labels.map((label) => {
+        const existing = prev.find((s) => s.label === label)
+        return existing || ({ label, values: [] } as Series)
+      })
+    })
+  }
+
   return (
     <>
       <LineChart
@@ -110,7 +127,7 @@ export default function Home() {
         lineColor={config.lineColor}
         gridColor={config.gridColor}
       />
-      <Sidebar config={config} onUpdate={(changes) => setConfig((prev) => ({ ...prev, ...changes }))} />
+      <Sidebar config={config} onUpdate={handleSidebarUpdate} />
     </>
   )
 }
